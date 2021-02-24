@@ -9,7 +9,7 @@ class FortuneController extends Controller
 {
     public function index()
     {
-        return 'hello fortune';
+        return view('fortune.index');
     }
 
     public function show(Request $request)

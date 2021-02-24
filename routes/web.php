@@ -16,4 +16,4 @@ use App\Http\Controllers\FortuneController;
 */
 
 Route::get('/', [FortuneController::class, 'index']);
-Route::get('/show', [FortuneController::class, 'show']);
+Route::get('/show', [FortuneController::class, 'show'])->name('fortune.show');
