@@ -9,14 +9,28 @@ class ShowFortuneUseCase
      */
     private $decideSign;
 
+    /**
+     * @var FetchFortuneInterface
+     */
     private $fetchFortune;
 
-    public function showFortune(\DateTimeInterface $birthday) // TODO ここでreturn typeとしてFortuneがほしいがEloquent Modelなので使いたくない
+    /**
+     * ShowFortuneUseCase constructor.
+     * @param DecideSign $decideSign
+     * @param FetchFortuneInterface $fetchFortune
+     */
+    public function __construct(DecideSign $decideSign, FetchFortuneInterface $fetchFortune)
+    {
+        $this->decideSign = $decideSign;
+        $this->fetchFortune = $fetchFortune;
+    }
+
+    public function showFortune(\DateTimeInterface $birthday): FortuneInterface
     {
         $targetSign = $this->decideSign->decideSign($birthday);
         abort_unless($targetSign, 400); // TODO abort_unlessはLaravelの関数なので使いたくない
 
-        $fortune = $this->fetchFortune->fetchTodaysFortune($targetSign); // TODO FetchFortuneはEloquentに依存しているので使いたくない
+        $fortune = $this->fetchFortune->fetchTodaysFortune($targetSign);
         abort_unless($fortune, 400);  // TODO abort_unlessはLaravelの関数なので使いたくない
 
         return $fortune;
