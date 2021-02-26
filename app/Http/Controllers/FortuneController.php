@@ -2,35 +2,25 @@
 
 namespace App\Http\Controllers;
 
-use App\Domain\DecideSign;
+use App\Domain\ShowFortuneException;
+use App\Domain\ShowFortuneUseCase;
 use App\Models\Fortune;
-use App\Service\FetchFortune;
 use Symfony\Component\HttpFoundation\Request;
 
 class FortuneController extends Controller
 {
     /**
-     * @var DecideSign
+     * @var ShowFortuneUseCase
      */
-    private $decideSign;
-
-    /**
-     * @var FetchFortune
-     */
-    private $fetchFortune;
+    private $showFortuneUseCase;
 
     /**
      * FortuneController constructor.
-     * @param DecideSign $decideSign
-     * @param FetchFortune $fetchFortune
+     * @param ShowFortuneUseCase $showFortuneUseCase
      */
-    public function __construct(
-        DecideSign $decideSign,
-        FetchFortune $fetchFortune
-    )
+    public function __construct(ShowFortuneUseCase $showFortuneUseCase)
     {
-        $this->decideSign = $decideSign;
-        $this->fetchFortune = $fetchFortune;
+        $this->showFortuneUseCase = $showFortuneUseCase;
     }
 
     public function index()
@@ -42,11 +32,11 @@ class FortuneController extends Controller
     {
         $birthday = new \DateTimeImmutable($request->query->get('birthday'));
 
-        $targetSign = $this->decideSign->decideSign($birthday);
-        abort_unless($targetSign, 400);
-
-        $fortune = $this->fetchFortune->fetchTodaysFortune($targetSign);
-        abort_unless($fortune, 400);
+        try {
+            $fortune = $this->showFortuneUseCase->showFortune($birthday);
+        } catch (ShowFortuneException $e) {
+            abort(400);
+        }
 
         return view('fortune.show', [
             'fortune' => $fortune,
