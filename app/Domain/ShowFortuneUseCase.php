@@ -25,13 +25,22 @@ class ShowFortuneUseCase
         $this->fetchFortune = $fetchFortune;
     }
 
+    /**
+     * @param \DateTimeInterface $birthday
+     * @return FortuneInterface
+     * @throws ShowFortuneException
+     */
     public function showFortune(\DateTimeInterface $birthday): FortuneInterface
     {
         $targetSign = $this->decideSign->decideSign($birthday);
-        abort_unless($targetSign, 400); // TODO abort_unlessはLaravelの関数なので使いたくない
+        if ($targetSign === null) {
+            throw new ShowFortuneException(sprintf('%s生まれの星座が決定できません', $birthday->format('Y-m-d')));
+        }
 
         $fortune = $this->fetchFortune->fetchTodaysFortune($targetSign);
-        abort_unless($fortune, 400);  // TODO abort_unlessはLaravelの関数なので使いたくない
+        if ($fortune === null) {
+            throw new ShowFortuneException(sprintf('%sの今日の運勢が見つかりません', $targetSign));
+        }
 
         return $fortune;
     }
